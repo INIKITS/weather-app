@@ -3,30 +3,19 @@
     <header>
       <h1 class="text-center">Weather App</h1>
     </header>
-    <div id="search-container" class="flex flex-row justify-center gap-4">
-      <input
-        id="search-bar "
-        v-model="query"
-        class="rounded-full opacity-70 focus:outline-none"
-        type="text"
-      />
-      <button
-        type="button"
-        id="search-button"
-        @click="fetchLocation"
-        class="opacity-70 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
-      >
-        butt
+    <div id="search-container" class="mt-6 flex flex-row justify-center gap-4">
+      <input id="search-bar " v-model="query" class="rounded-full opacity-70 focus:outline-none" type="text" />
+      <button type="button" id="search-button" @click="fetchLocation"
+        class="opacity-70 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">
+        button
       </button>
     </div>
-    <span id="city-name">City Name</span>
+    <span id="city-name">{{location}}</span>
 
     <div id="weather-container">
-      <span id="temperature">89F </span>
-      <span id="temperature-icon">icon</span>
-      <div id="current-conditions">It Hot</div>
-      <div>password: {{ query }}</div>
-      <div>location: {{ location }}</div>
+      <span id="temperature">{{ weather.temp }} </span>
+      <!-- <span id="temperature-icon">icon</span> -->
+      <div id="current-conditions">{{weather.shortForecast}}</div>
     </div>
   </div>
 </template>
@@ -48,7 +37,11 @@ export default {
       coordinatesLat: null,
       coordinatesLong: null,
       query: "",
-      weather: {},
+      weather: {
+        temp: null,
+        shortForecast: null,
+        isDaytime: null,
+      },
       location: null,
     };
   },
@@ -58,10 +51,10 @@ export default {
       try {
         const response = await fetch(
           this.coordinatesUrl +
-            this.query +
-            "&limit=1" +
-            "&appid=" +
-            this.password
+          this.query +
+          "&limit=1" +
+          "&appid=" +
+          this.password
         );
         const data = await response.json();
 
@@ -81,17 +74,40 @@ export default {
       try {
         const response = await fetch(
           this.baseUrl +
-            "lat=" +
-            lat +
-            "&lon=" +
-            long +
-            "&exclude=minutely,hourly,daily,alerts" +
-            "&appid=" +
-            this.password
+
+          lat +
+          "," +
+          long,
+          {
+            method: 'GET',
+            headers: {
+              'User-Agent': 'vuetestweatherapp, dakota.h.solis@gmail.com',
+            }
+          }
         );
         const data = await response.json();
 
-        console.log("data :>> ", data.message);
+        console.log("data :>> ", data.properties.forecast);
+
+        const weatherJson = await fetch (data.properties.forecast);
+
+        const weatherData = await weatherJson.json();
+
+        console.log('weather props:>> ', weatherData.properties.periods);
+
+        const weather = weatherData.properties.periods[0]
+
+        console.log('short :>> ', weather.shortForecast);
+        console.log('temperature :>> ', weather.temperature + ' ' + weather.temperatureUnit);
+        console.log('dayTime :>> ', weather.isDaytime);
+        console.log('weather :>> ', weather);
+
+        this.weather.temp = weather.temperature + ' ' + weather.temperatureUnit;
+        this.weather.shortForecast = weather.shortForecast;
+        this.weather.isDaytime = weather.isDaytime;
+
+        console.log('typeof(weather.isDaytime) :>> ', typeof(weather.isDaytime));
+
       } catch (err) {
         console.error(err.message);
       }
