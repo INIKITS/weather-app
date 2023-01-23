@@ -4,9 +4,9 @@
 
 @tailwind utilities;
 
-body {
+#app, body{
   height: 100vh;
-  background-color: rgb(108, 203, 244);
+  /* background-color: rgb(108, 203, 244);
   display: flex;
-  justify-content: center;
+  justify-content: center; */
 }

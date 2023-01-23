@@ -1,6 +1,7 @@
 <template>
-  <div>
+  <div class="min-h-full flex flex-col items-center bg-cover bg-gradient-to-r from-cyan-500 to-blue-500">
     <header>
+      
       <h1 class="text-center">Weather App</h1>
     </header>
     <div id="search-container" class="mt-6 flex flex-row justify-center gap-4">
@@ -10,13 +11,15 @@
         button
       </button>
     </div>
-    <span id="city-name">{{location}}</span>
+    <span id="city-name" class="pt-3">location: {{location}}</span>
 
-    <div id="weather-container">
-      <span id="temperature">{{ weather.temp }} </span>
-      <!-- <span id="temperature-icon">icon</span> -->
-      <div id="current-conditions">{{weather.shortForecast}}</div>
+    <div id="weather-container" class="pt-6 ">
+      <span id="temperature">temp: {{ weather.temp }} </span>
+      <!-- <span v-if=!weather.isDaytime id="temperature-icon">icon</span>
+      <span v-else >it not daytime</span> -->
+      <div id="current-conditions">current: {{weather.shortForecast}}</div>
     </div>
+
   </div>
 </template>
 
@@ -62,9 +65,6 @@ export default {
         this.coordinatesLat = data[0].lat;
         this.coordinatesLong = data[0].lon;
 
-        console.log("location :>> ", this.location);
-        console.log("coordinatesLat :>> ", this.coordinatesLat);
-        console.log("coordinatesLong :>> ", this.coordinatesLong);
         this.fetchWeather(this.coordinatesLat, this.coordinatesLong);
       } catch (err) {
         console.error(err.message);
@@ -74,7 +74,6 @@ export default {
       try {
         const response = await fetch(
           this.baseUrl +
-
           lat +
           "," +
           long,
@@ -87,26 +86,15 @@ export default {
         );
         const data = await response.json();
 
-        console.log("data :>> ", data.properties.forecast);
-
         const weatherJson = await fetch (data.properties.forecast);
 
         const weatherData = await weatherJson.json();
 
-        console.log('weather props:>> ', weatherData.properties.periods);
-
         const weather = weatherData.properties.periods[0]
-
-        console.log('short :>> ', weather.shortForecast);
-        console.log('temperature :>> ', weather.temperature + ' ' + weather.temperatureUnit);
-        console.log('dayTime :>> ', weather.isDaytime);
-        console.log('weather :>> ', weather);
 
         this.weather.temp = weather.temperature + ' ' + weather.temperatureUnit;
         this.weather.shortForecast = weather.shortForecast;
         this.weather.isDaytime = weather.isDaytime;
-
-        console.log('typeof(weather.isDaytime) :>> ', typeof(weather.isDaytime));
 
       } catch (err) {
         console.error(err.message);
